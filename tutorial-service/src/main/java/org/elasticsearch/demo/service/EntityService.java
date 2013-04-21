@@ -21,6 +21,7 @@ package org.elasticsearch.demo.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.demo.model.bean.Person;
@@ -62,6 +63,9 @@ public class EntityService {
     }
 
     public void delete(String id) {
-        // TODO Implement here
+        DeleteResponse deleteResponse = ElasticsearchFactory.getClient()
+                .prepareDelete("world", "person", id)
+                .execute().actionGet();
+        if (deleteResponse.isNotFound()) throw new RuntimeException("Entity " + id + " was not existing");
     }
 }

@@ -323,3 +323,26 @@ public class EntityService {
     ...
 }
 ```
+
+Remove entities from Elasticsearch
+----------------------------------
+
+Let's implement `EntityService#delete(String)` method:
+
+```java
+import org.elasticsearch.action.delete.DeleteResponse;
+
+public class EntityService {
+
+    ...
+
+    public void delete(String id) {
+        DeleteResponse deleteResponse = ElasticsearchFactory.getClient()
+                .prepareDelete("world", "person", id)
+                .execute().actionGet();
+        if (deleteResponse.isNotFound()) throw new RuntimeException("Entity " + id + " was not existing");
+    }
+
+    ...
+}
+```
