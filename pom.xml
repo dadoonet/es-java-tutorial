@@ -11,6 +11,7 @@
 
     <modules>
         <module>tutorial-model</module>
+        <module>tutorial-service</module>
     </modules>
     
 </project>

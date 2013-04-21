@@ -100,3 +100,138 @@ public class Person {
 }
 ```
 
+Service Layer
+=============
+
+Let's add a new Maven module: `tutorial-service':
+
+In `/pom.xml`:
+
+```xml
+    <modules>
+        <module>tutorial-model</module>
+        <module>tutorial-service</module>
+    </modules>
+```
+
+Create `/tutorial-service/src/main/java` directories.
+
+Create `/tutorial-service/pom.xml` file:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>elasticsearch-java-tutorial</artifactId>
+        <groupId>org.elasticsearch.demo</groupId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>tutorial-service</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.elasticsearch.demo</groupId>
+            <artifactId>tutorial-model</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+Create `EntityService.java` file:
+
+```java
+package org.elasticsearch.demo.service;
+
+import org.elasticsearch.demo.model.bean.Person;
+
+public class EntityService {
+    public String save(Person person) {
+        // TODO Implement here
+        return null;
+    }
+
+    public Person get(String id) {
+        // TODO Implement here
+        return null;
+    }
+
+    public void delete(String id) {
+        // TODO Implement here
+    }
+}
+```
+
+Add Elasticsearch
+-----------------
+
+We are going first to add Elasticsearch as a dependency. We will use at first
+an embedded instance of elasticsearch. We will see later on how to connect to a
+running cluster.
+
+In `/tutorial-service/pom.xml`, add:`
+
+```xml
+    <dependencies>
+        ...
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>0.90.0.RC2</version>
+        </dependency>
+        ...
+    </dependencies>
+```
+
+We will create a single instance of Elasticsearch (aka only one node). So we will
+create a factory in `/tutorial-service/src/main/java/org/elasticsearch/demo/service/ElasticsearchFactory.java`:
+
+```java
+package org.elasticsearch.demo.service;
+
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
+
+public class ElasticsearchFactory {
+    private static Node node;
+
+    public static Node getNode() {
+        if (node == null) {
+            // Let's start an Elasticsearch node
+            node = NodeBuilder.nodeBuilder().node();
+        }
+
+        return node;
+    }
+}
+```
+
+To communicate with Elasticsearch node, we will need a `Client`. We can get one
+from any `Node`. Let's share the same `Client` for the whole jvm.
+
+So, we add a `getClient()` method to the same factory.
+
+```java
+import org.elasticsearch.client.Client;
+
+public class ElasticsearchFactory {
+    private static Node node;
+
+    private static Client client;
+
+
+    public static Client getClient() {
+        if (client == null) {
+            client = getNode().client();
+        }
+
+        return client;
+    }
+}
+```
+
