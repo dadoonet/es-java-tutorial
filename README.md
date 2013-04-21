@@ -235,3 +235,54 @@ public class ElasticsearchFactory {
 }
 ```
 
+Persist entities in Elasticsearch
+---------------------------------
+
+Now, we have a running node, we can fill the `EntityService` class.
+Remember that we have to give JSon objects to Elasticsearch. So we probably
+want to use a JSon library to serialize and deserialize our beans.
+
+Let's add Jackson library in our `/tutorial-model/pom.xml`:
+
+```xml
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.1.3</version>
+        </dependency>
+    </dependencies>
+```
+
+Let's implement `EntityService#save(Person)` method:
+
+```java
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class EntityService {
+
+    ...
+
+    public String save(Person person) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String id = null;
+        try {
+            IndexResponse indexResponse = ElasticsearchFactory.getClient()
+                    .prepareIndex("world", "person")
+                    .setSource(objectMapper.writeValueAsBytes(person))
+                    .execute().actionGet();
+            id = indexResponse.getId();
+        } catch (JsonProcessingException e) {
+            // We have an exception here. We should handle it...
+            throw new RuntimeException("Can not save entity " + person);
+        }
+        return id;
+    }
+
+    ...
+}
+```
+
+We are using index `world` to persist our entities and we will persist them under type name `person`.
+

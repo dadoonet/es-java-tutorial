@@ -20,9 +20,13 @@
 package org.elasticsearch.demo.service;
 
 import org.elasticsearch.client.Client;
+import org.elasticsearch.demo.model.bean.Address;
+import org.elasticsearch.demo.model.bean.Person;
 import org.elasticsearch.node.Node;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Date;
 
 public class EntityServiceTest {
 
@@ -36,6 +40,22 @@ public class EntityServiceTest {
     public void testClient() {
         Client client = ElasticsearchFactory.getClient();
         Assert.assertNotNull(client);
+    }
+
+    @Test
+    public void testCreatePerson() {
+        EntityService service =  new EntityService();
+        Person person = new Person();
+        person.setName("Ritchie Cunningham");
+        person.setGender("Male");
+        person.setDateOfBirth(new Date());
+        Address address = new Address();
+        address.setCity("Milwaukee");
+        address.setCountry("USA");
+        address.setZipcode("XXXXX");
+        person.setAddress(address);
+
+        service.save(person);
     }
 
 }

@@ -19,12 +19,26 @@
 
 package org.elasticsearch.demo.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.demo.model.bean.Person;
 
 public class EntityService {
     public String save(Person person) {
-        // TODO Implement here
-        return null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        String id = null;
+        try {
+            IndexResponse indexResponse = ElasticsearchFactory.getClient()
+                    .prepareIndex("world", "person")
+                    .setSource(objectMapper.writeValueAsBytes(person))
+                    .execute().actionGet();
+            id = indexResponse.getId();
+        } catch (JsonProcessingException e) {
+            // We have an exception here. We should handle it...
+            throw new RuntimeException("Can not save entity " + person);
+        }
+        return id;
     }
 
     public Person get(String id) {
