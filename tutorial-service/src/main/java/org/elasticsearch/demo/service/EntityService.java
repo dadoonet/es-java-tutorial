@@ -21,8 +21,11 @@ package org.elasticsearch.demo.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.demo.model.bean.Person;
+
+import java.io.IOException;
 
 public class EntityService {
     public String save(Person person) {
@@ -42,8 +45,20 @@ public class EntityService {
     }
 
     public Person get(String id) {
-        // TODO Implement here
-        return null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        Person person = null;
+        try {
+            GetResponse getResponse = ElasticsearchFactory.getClient()
+                    .prepareGet("world", "person", id)
+                    .execute().actionGet();
+            if (getResponse.isExists()) {
+                person = objectMapper.readValue(getResponse.getSourceAsBytes(), Person.class);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Can not read entity " + id);
+        }
+
+        return person;
     }
 
     public void delete(String id) {

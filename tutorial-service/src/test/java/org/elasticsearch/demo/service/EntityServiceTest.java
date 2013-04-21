@@ -58,4 +58,25 @@ public class EntityServiceTest {
         service.save(person);
     }
 
+
+    @Test
+    public void testCreateThenGetPerson() {
+        EntityService service =  new EntityService();
+        Person person = new Person();
+        person.setName("Ritchie Cunningham");
+        person.setGender("Male");
+        person.setDateOfBirth(new Date());
+        Address address = new Address();
+        address.setCity("Milwaukee");
+        address.setCountry("USA");
+        address.setZipcode("XXXXX");
+        person.setAddress(address);
+
+        String id = service.save(person);
+
+        Person personFromEs = service.get(id);
+
+        Assert.assertNotNull(personFromEs);
+    }
+
 }

@@ -260,6 +260,8 @@ Let's implement `EntityService#save(Person)` method:
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.elasticsearch.action.index.IndexResponse;
+
 public class EntityService {
 
     ...
@@ -286,3 +288,38 @@ public class EntityService {
 
 We are using index `world` to persist our entities and we will persist them under type name `person`.
 
+
+Get entities from Elasticsearch
+-------------------------------
+
+Let's implement `EntityService#get(String)` method:
+
+```java
+import org.elasticsearch.action.get.GetResponse;
+
+import java.io.IOException;
+
+public class EntityService {
+
+    ...
+
+    public Person get(String id) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Person person = null;
+        try {
+            GetResponse getResponse = ElasticsearchFactory.getClient()
+                    .prepareGet("world", "person", id)
+                    .execute().actionGet();
+            if (getResponse.isExists()) {
+                person = objectMapper.readValue(getResponse.getSourceAsBytes(), Person.class);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Can not read entity " + id);
+        }
+
+        return person;
+    }
+
+    ...
+}
+```
